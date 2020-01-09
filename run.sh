@@ -1,2 +1,3 @@
 #!/bin/bash
-python3 manage.py runserver 0.0.0.0:8000
+~/.local/bin/docker-compose build
+~/.local/bin/docker-compose up
