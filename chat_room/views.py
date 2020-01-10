@@ -1,8 +1,10 @@
+import json
 from rest_framework import generics
 from django.http import HttpResponse
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
+from django.utils.safestring import mark_safe
 
 def index(request):
     return render(request, 'index.html')
@@ -27,4 +29,9 @@ def logout_view(request):
 
 def messages(request):
     return HttpResponse('messages')
+
+def room(request, room_name):
+    return render(request, 'room.html', {
+        'room_name_json': mark_safe(json.dumps(room_name))
+    })
 

@@ -1,4 +1,5 @@
 FROM python:3.6
+LABEL CN Project
 ENV PYTHONUNBUFFERED 1
 RUN mkdir /code
 WORKDIR /code

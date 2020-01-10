@@ -18,6 +18,8 @@ from django.urls import path
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
+from . import views
+
 urlpatterns = [
     path('', views.index),
     path('admin/', admin.site.urls),
@@ -25,4 +27,5 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('signup/', views.signup),
     path('messages/', views.messages),
+    path('<str:room_name>/', views.room, name='room'),
 ]
