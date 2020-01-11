@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'channels',
     'psycopg2',
     'rest_framework',
+    'chat_room',
 ]
 
 MIDDLEWARE = [
