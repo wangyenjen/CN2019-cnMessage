@@ -9,6 +9,13 @@
     <textarea id="chat-log" cols="100" rows="20"></textarea><br/>
     <input id="chat-message-input" type="text" size="100"/><br/>
     <input id="chat-message-submit" type="button" value="Send"/>
+
+    <form action="{% url 'upload'%}" enctype="multipart/form-data" method="post" target="_blank">
+        {% csrf_token %}
+        <input id="file-object"  type="file" name="filename" value="">
+        <input id="file-submit" type="submit" value="upload">
+    </form>
+
 </body>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"> </script>
 <script>
@@ -71,5 +78,28 @@
 	})
         messageInputDom.value = '';
     };
+
+    document.querySelector('#file-submit').onclick = function(e) {
+	var fileInput = document.getElementById('file-object');
+	var filename = fileInput.files[0].name;
+	var message = "download/" + filename;
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        console.log('send:')
+	console.log(message)
+	$.ajax({
+	    url: '/messages/',
+	    data: {'room_id': roomName,
+		   'sender': "{{user}}",
+		   'text': message,
+		   'csrfmiddlewaretoken': "{{ csrf_token }}"},
+	    type: 'POST'
+	}).done(function(reponse) {
+	    console.log(response);
+	})
+    };
+
+
 </script>
 </html>

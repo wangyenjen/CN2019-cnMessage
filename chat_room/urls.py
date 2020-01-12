@@ -29,4 +29,6 @@ urlpatterns = [
     path('messages/', views.messages),
     path('find_room/', views.find_room),
     path('room/', views.room, name='room'),
+    path('upload/', views.upload, name='upload'),
+    path('download/<str:filename>', views.download, name='download'),
 ]
