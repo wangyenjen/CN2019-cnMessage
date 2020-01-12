@@ -46,11 +46,17 @@ def room(request):
         roomName = request.POST['room_name']
         print(roomName)
         texts = []
+        times = []
+        senders = []
         for message in Message.objects.filter(room_id=roomName):
             texts.append(message.text)
+            times.append(datetime.strftime(message.time, '%Y-%m-%d %H:%M'))
+            senders.append(message.sender)
         return render(request, 'room.html', {
             'room_name_json': mark_safe(json.dumps(roomName)),
             'texts': mark_safe(json.dumps(texts)),
+            'times': mark_safe(json.dumps(times)),
+            'senders': mark_safe(json.dumps(senders)),
         })
 
 def find_room(request):

@@ -14,18 +14,28 @@
 <script>
     var roomName = {{ room_name_json }};
     var db_texts = {{ texts }};
+    var db_times = {{ times }};
+    var db_senders = {{ senders }};
 
     var chatSocket = new WebSocket(
         'ws://' + window.location.host + '/ws/' + roomName + '/');
 
     for (var i = 0; i < db_texts.length; i++) {
-        document.querySelector('#chat-log').value += (db_texts[i] + '\n');
+        document.querySelector('#chat-log').value +=
+	    (db_times[i] + ' ' + db_senders[i] + ": " + db_texts[i] + '\n');
     }
 
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
         var message = data['message'];
-        document.querySelector('#chat-log').value += (message + '\n');
+	var currentdate = new Date();
+	var datetime = currentdate.getFullYear() + "-"
+	    + ("00" + (currentdate.getMonth()+1)).substr(-2,2) + "-"
+	    + ("00" + currentdate.getDate()).substr(-2,2) + " "
+	    + ("00" + currentdate.getHours()).substr(-2,2) + ":"
+	    + ("00" + currentdate.getMinutes()).substr(-2,2);
+	console.log(datetime);
+        document.querySelector('#chat-log').value += (datetime + ' ' + "{{ user }}: " + message + '\n');
         console.log('message:'+message)
     };
 
