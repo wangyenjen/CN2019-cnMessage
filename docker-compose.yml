@@ -11,9 +11,6 @@ services:
     volumes:
       - redis-data:/data
 
-  db:
-    image: postgres
-
   web:
     build: .
     command: /bin/sh -c "entrypoint.sh"
@@ -21,8 +18,6 @@ services:
       - .:/code
     ports:
       - "8000:8000"
-    links:
-      - db
     depends_on:
       - redis
 

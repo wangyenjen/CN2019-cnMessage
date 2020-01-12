@@ -10,11 +10,17 @@
     <input id="chat-message-input" type="text" size="100"/><br/>
     <input id="chat-message-submit" type="button" value="Send"/>
 </body>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"> </script>
 <script>
     var roomName = {{ room_name_json }};
+    var db_texts = {{ texts }};
 
     var chatSocket = new WebSocket(
         'ws://' + window.location.host + '/ws/' + roomName + '/');
+
+    for (var i = 0; i < db_texts.length; i++) {
+        document.querySelector('#chat-log').value += (db_texts[i] + '\n');
+    }
 
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
@@ -42,7 +48,17 @@
             'message': message
         }));
         console.log('send:')
-
+	console.log(message)
+	$.ajax({
+	    url: '/messages/',
+	    data: {'room_id': roomName,
+		   'sender': "{{user}}",
+		   'text': message,
+		   'csrfmiddlewaretoken': "{{ csrf_token }}"},
+	    type: 'POST'
+	}).done(function(reponse) {
+	    console.log(response);
+	})
         messageInputDom.value = '';
     };
 </script>
