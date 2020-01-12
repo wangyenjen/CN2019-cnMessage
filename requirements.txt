@@ -4,7 +4,6 @@ pytz==2019.3
 setuptools==44.0.0 
 sqlparse==0.3.0  
 wheel==0.33.6 
-psycopg2==2.8.4
 djangorestframework==3.11.0
 channels==2.4.0
 channels_redis==2.4.1

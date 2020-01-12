@@ -12,22 +12,40 @@
     <br/>
     <!-- <script src="/static/app.js"></script> -->
 
-    What chat room would you like to enter?<br/>
-    <input id="room-name-input" type="text" size="100"/><br/>
-    <input id="room-name-submit" type="button" value="Enter"/>
+    Who would you like to chat with?<br/>
+    <input id="username-input" type="text" size="100"/><br/>
+    <input id="username-submit" type="button" value="Enter"/>
+
+    <form method="post" id="go-to-room" action="room/">
+      <input type="hidden" name="room_name">
+      <input type="hidden" name="csrfmiddlewaretoken" value={{ csrf_token }}>
+    </form>
 
   </body>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"> </script>
   <script>
-    document.querySelector('#room-name-input').focus();
-    document.querySelector('#room-name-input').onkeyup = function(e) {
+    document.querySelector('#username-input').focus();
+    document.querySelector('#username-input').onkeyup = function(e) {
         if (e.keyCode === 13) {  // enter, return
-            document.querySelector('#room-name-submit').click();
+            document.querySelector('#username-submit').click();
         }
     };
 
-    document.querySelector('#room-name-submit').onclick = function(e) {
-        var roomName = document.querySelector('#room-name-input').value;
-        window.location.pathname = '/' + roomName + '/';
+    document.querySelector('#username-submit').onclick = function(e) {
+	var userName = document.querySelector('#username-input').value;
+	var users = ["{{user}}", userName];
+	console.log(users)
+	$.ajax({
+	    url: '/find_room/',
+	    data: {'users': users,
+		   'csrfmiddlewaretoken': "{{ csrf_token }}"},
+	    type: 'POST',
+	    success: function (response) {
+		console.log(response);
+		$('input[name="room_name"]').val(response);
+		$('#go-to-room').submit();
+	    },
+	})
     };
   </script>
 </html>

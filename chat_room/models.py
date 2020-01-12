@@ -5,8 +5,8 @@ class UserState(models.Model):
     is_online = models.BooleanField()
 
 class Message(models.Model):
-    room_id = models.CharField(max_length=20, help_text='Enter room id')
+    room_id = models.CharField(max_length=64, help_text='Enter room id')
     sender = models.CharField(max_length=20, help_text='Enter username')
     time = models.DateTimeField()
-    text = models.CharField(max_length=20, help_text='Enter message')
+    text = models.CharField(max_length=100, help_text='Enter message')
     

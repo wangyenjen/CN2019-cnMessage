@@ -27,5 +27,6 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('signup/', views.signup),
     path('messages/', views.messages),
-    path('<str:room_name>/', views.room, name='room'),
+    path('find_room/', views.find_room),
+    path('room/', views.room, name='room'),
 ]
