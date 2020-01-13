@@ -6,18 +6,27 @@
     <title>Chat Room</title>
 </head>
 <body>
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br/>
-    <input id="chat-message-input" type="text" size="100"/><br/>
-    <input id="chat-message-submit" type="button" value="Send"/>
-    <form action="{% url 'upload'%}" enctype="multipart/form-data" method="post" target="_blank">
-        {% csrf_token %}
-        <input id="file-object"  type="file" name="filename" value="">
-        <input id="file-submit" type="submit" value="upload">
-    </form>
-    <a href="/">index</a>
+  <div id="chat-log"></div>
+  <input id="chat-message-input" type="text" size="100"/><br/>
+  <input id="chat-message-submit" type="button" value="Send"/>
+  <form action="{% url 'upload'%}" enctype="multipart/form-data" method="post" target="_blank">
+    {% csrf_token %}
+    <input id="file-object"  type="file" name="filename" value="">
+    <input id="file-submit" type="submit" value="upload">
+  </form>
+  <a href="/">index</a>
 </body>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"> </script>
 <script>
+    function parseDateTime () {
+	var currentdate = new Date();
+	var datetime = currentdate.getFullYear() + "-"
+	    + ("00" + (currentdate.getMonth()+1)).substr(-2,2) + "-"
+	    + ("00" + currentdate.getDate()).substr(-2,2) + " "
+	    + ("00" + currentdate.getHours()).substr(-2,2) + ":"
+	    + ("00" + currentdate.getMinutes()).substr(-2,2);
+	return datetime;
+    }
     var roomName = {{ room_name_json }};
     var db_is_files = {{ is_files }};
     var db_texts = {{ texts }};
@@ -28,30 +37,17 @@
         'ws://' + window.location.host + '/ws/' + roomName + '/');
 
     for (var i = 0; i < db_texts.length; i++) {
-        document.querySelector('#chat-log').value +=
+        document.getElementById('chat-log').innerHTML +=
 	    (db_times[i] + ' ' + db_senders[i] + ": ");
-	if (!db_is_files[i]) {
-	    document.querySelector('#chat-log').value +=
-		(db_texts[i] + '\n');
-	}
-	else {
-	    document.querySelector('#chat-log').value +=
-		('<p><a href="/download/' + db_texts[i] + '/">' + db_texts[i] + '</a></p>\n');
-	}
+	document.getElementById('chat-log').innerHTML += (db_texts[i] + '<br/>');
     }
 
     chatSocket.onmessage = function(e) {
-        var data = JSON.parse(e.data);
-        var message = data['message'];
-	var currentdate = new Date();
-	var datetime = currentdate.getFullYear() + "-"
-	    + ("00" + (currentdate.getMonth()+1)).substr(-2,2) + "-"
-	    + ("00" + currentdate.getDate()).substr(-2,2) + " "
-	    + ("00" + currentdate.getHours()).substr(-2,2) + ":"
-	    + ("00" + currentdate.getMinutes()).substr(-2,2);
-	console.log(datetime);
-        document.querySelector('#chat-log').value += (datetime + ' ' + "{{ user }}: " + message + '\n');
-        console.log('message:'+message)
+	var data = JSON.parse(e.data)['message'];
+        var text = data['text'];
+	var user = data['user'];
+	var datetime = parseDateTime();
+        document.querySelector('#chat-log').innerHTML += datetime + ' ' + user + ": " + text + "<br\>";
     };
 
     chatSocket.onclose = function(e) {
@@ -68,41 +64,43 @@
 
     document.querySelector('#chat-message-submit').onclick = function(e) {
         var messageInputDom = document.querySelector('#chat-message-input');
-        var message = messageInputDom.value;
-        chatSocket.send(JSON.stringify({
-            'message': message
-        }));
-        console.log('send:')
-	console.log(message)
+	var text = messageInputDom.value;
+	var jsonMessage = JSON.stringify({
+            message: {
+		user: '{{ user }}',
+		text: text,
+            }
+        });
+	chatSocket.send(jsonMessage);
 	$.ajax({
 	    url: '/messages/',
 	    data: {'room_id': roomName,
 		   'is_file': 0,
 		   'sender': "{{user}}",
-		   'text': message,
+		   'text': text,
 		   'csrfmiddlewaretoken': "{{ csrf_token }}"},
 	    type: 'POST'
-	}).done(function(reponse) {
-	    console.log(response);
-	})
+	});
         messageInputDom.value = '';
     };
 
     document.querySelector('#file-submit').onclick = function(e) {
 	var fileInput = document.getElementById('file-object');
 	var filename = fileInput.files[0].name;
-	var message = "download/" + filename;
-        chatSocket.send(JSON.stringify({
-            'message': message
-        }));
-        console.log('send:')
-	console.log(message)
+	var downloadHTML = '<a href="/download/' + filename + '">' + filename + '</a>';
+	var jsonMessage = JSON.stringify({
+            message: {
+		user: '{{ user }}',
+		text: downloadHTML,
+            }
+        });
+        chatSocket.send(jsonMessage);
 	$.ajax({
 	    url: '/messages/',
 	    data: {'room_id': roomName,
 		   'is_file': 1,
 		   'sender': "{{user}}",
-		   'text': filename,
+		   'text': downloadHTML,
 		   'csrfmiddlewaretoken': "{{ csrf_token }}"},
 	    type: 'POST'
 	}).done(function(reponse) {
@@ -110,4 +108,15 @@
 	})
     };
 </script>
+<style type="text/css">
+#chat-log {
+width: 400px;
+margin: 0 auto;
+overflow: auto;
+border: 1px solid #0f0;
+padding: 2px;
+text-align: justify;
+background: transparent;
+}
+</style>
 </html>
