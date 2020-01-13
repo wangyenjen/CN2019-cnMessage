@@ -17,7 +17,10 @@ if not os.path.exists(SAVED_FILES_DIR):
     os.makedirs(SAVED_FILES_DIR)
 
 def index(request):
-    return render(request, 'index.html')
+    if request.user.is_authenticated:
+        return render(request, 'index.html')
+    else:
+        return redirect('/login/')
 
 def signup(request):
     if request.method == 'POST':
@@ -41,6 +44,7 @@ def messages(request):
     if request.method == 'POST':
         data = request.POST
         message = Message(room_id=data['room_id'],
+                          is_file=data['is_file'],
                           sender=data['sender'],
                           time=datetime.now(),
                           text=data['text'])
@@ -51,16 +55,18 @@ def messages(request):
 def room(request):
     if request.method == 'POST':
         roomName = request.POST['room_name']
-        print(roomName)
+        is_files = []
         texts = []
         times = []
         senders = []
         for message in Message.objects.filter(room_id=roomName):
+            is_files.append(message.is_file)
             texts.append(message.text)
             times.append(datetime.strftime(message.time, '%Y-%m-%d %H:%M'))
             senders.append(message.sender)
         return render(request, 'room.html', {
             'room_name_json': mark_safe(json.dumps(roomName)),
+            'is_files': mark_safe(json.dumps(is_files)),
             'texts': mark_safe(json.dumps(texts)),
             'times': mark_safe(json.dumps(times)),
             'senders': mark_safe(json.dumps(senders)),
