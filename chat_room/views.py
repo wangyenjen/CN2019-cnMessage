@@ -75,8 +75,11 @@ def room(request):
 def find_room(request):
     if request.method == 'POST':
         users = request.POST.getlist('users[]')
+        users = [users[0]] + users[1].split('#')
         users.sort()
-        ori = users[0] + '#' + users[1]
+        ori = users[0]
+        for i in range(1, len(users)):
+            ori = ori + '#' + users[i]
         roomName = hashlib.sha256(ori.encode("utf-8")).hexdigest()
         return HttpResponse(roomName)
     return HttpResponse('failed')
